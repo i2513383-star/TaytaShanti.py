@@ -17,7 +17,7 @@ class PPersona:
         self.__construirInterfaz()
         
     def __construirInterfaz(self):
-        st.title("tayta shanty")
+        st.title("TAYTA SHANTI")
 
         if st.session_state.persona_Selecionada != '':
             st.session_state.docIdentidad_sesion = st.session_state.persona_Selecionada['docIdentidad']
@@ -114,4 +114,5 @@ class PPersona:
         st.session_state.docIdentidad_sesion = ''
         st.session_state.nombre_sesion = ''
         st.session_state.edad_sesion = 0
+
         st.rerun()
