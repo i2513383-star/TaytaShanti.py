@@ -25,7 +25,7 @@ class PProducto:
         with st.form(f"formProducto{st.session_state.form_key_producto}"):
             txtNombre = st.text_input("Nombre", value=nombre)
             txtPrecio = st.number_input("Precio", min_value=0.0, step=0.1, value=float(precio))
-            txtStock = st.number_input("Stock", min_value=0, max_value = 120, step=1, value=int(stock))
+            txtStock = st.number_input("Stock", min_value=0, step=1, value=int(stock))
 
             if producto:
                 btnActualizar = st.form_submit_button("Actualizar", type="primary")
@@ -89,6 +89,7 @@ class PProducto:
         st.session_state.producto_seleccionado = None
         st.session_state.form_key_producto += 1
         st.rerun()
+
 
 
 
