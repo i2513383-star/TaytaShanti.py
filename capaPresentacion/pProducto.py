@@ -20,7 +20,7 @@ class PProducto:
 
         nombre = producto['nombre'] if producto else ''
         precio = producto['precio'] if producto else 0.0
-        stock = producto['stock'] if producto else 0
+        stock = producto['stock'] if producto else 120
 
         with st.form(f"formProducto{st.session_state.form_key_producto}"):
             txtNombre = st.text_input("Nombre", value=nombre)
@@ -89,3 +89,4 @@ class PProducto:
         st.session_state.producto_seleccionado = None
         st.session_state.form_key_producto += 1
         st.rerun()
+
