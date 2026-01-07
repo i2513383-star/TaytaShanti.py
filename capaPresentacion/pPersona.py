@@ -1,147 +1,109 @@
-from capaLogicaNegocio.nProducto import nProducto
+from capaLogicaNegocio.nPersona import nPersona
 import streamlit as st
 
-
-class PProducto:
+class PPersona:
     def __init__(self):
-        self.__nProducto = nProducto()
-
-        # Variables de sesión
-        if 'formularioKey' not in st.session_state:
-            st.session_state.formularioKey = 0
-
-        if 'productoSeleccionado' not in st.session_state:
-            st.session_state.productoSeleccionado = None
-
-        if 'id_sesion' not in st.session_state:
-            st.session_state.id_sesion = ''
-
+        self.__nPersona = nPersona()
+        if 'formulariokey' not in st.session_state:
+            st.session_state.formulariokey = 0 
+        if 'persona_Selecionada' not in st.session_state:
+            st.session_state.persona_Selecionada = ''
+        if 'docIdentidad_sesion' not in st.session_state:
+            st.session_state.docIdentidad_sesion = ''
         if 'nombre_sesion' not in st.session_state:
             st.session_state.nombre_sesion = ''
-
-        if 'precio_sesion' not in st.session_state:
-            st.session_state.precio_sesion = 0.0
-
-        if 'stock_sesion' not in st.session_state:
-            st.session_state.stock_sesion = 0
-
+        if 'edad_sesion' not in st.session_state:
+            st.session_state.edad_sesion = 0
         self.__construirInterfaz()
-
-    # ---------------- INTERFAZ ----------------
+        
     def __construirInterfaz(self):
-        st.title("Sistema de Ventas e Inventario - TAYTA SHANTI")
+        st.title("tayta shanty")
 
-        # Si hay producto seleccionado (editar)
-        if st.session_state.productoSeleccionado:
-            st.session_state.id_sesion = st.session_state.productoSeleccionado["id"]
-            st.session_state.nombre_sesion = st.session_state.productoSeleccionado["nombre"]
-            st.session_state.precio_sesion = st.session_state.productoSeleccionado["precio"]
-            st.session_state.stock_sesion = st.session_state.productoSeleccionado["stock"]
+        if st.session_state.persona_Selecionada != '':
+            st.session_state.docIdentidad_sesion = st.session_state.persona_Selecionada['docIdentidad']
+            st.session_state.nombre_sesion = st.session_state.persona_Selecionada['nombre']
+            st.session_state.edad_sesion = st.session_state.persona_Selecionada['edad']
 
-        with st.form(f"Formulario{st.session_state.formularioKey}"):
+        with st.form(f'Formulario{st.session_state.formulariokey}'):
+            textDocIdentidad = st.text_input('Documento de identidad',value=st.session_state.docIdentidad_sesion,disabled=st.session_state.persona_Selecionada != '')
+            textNombre = st.text_input('Nombre',value=st.session_state.nombre_sesion)
+            textEdad = st.number_input('Edad',min_value=0,max_value=150,value=st.session_state.edad_sesion)
 
-            txtNombre = st.text_input(
-                "Nombre del producto",
-                value=st.session_state.nombre_sesion
-            )
-
-            txtPrecio = st.number_input(
-                "Precio",
-                min_value=0.0,
-                value=st.session_state.precio_sesion
-            )
-
-            txtStock = st.number_input(
-                "Stock",
-                min_value=0,
-                value=st.session_state.stock_sesion
-            )
-
-            # ----- BOTONES -----
-            if st.session_state.productoSeleccionado:
-                btnActualizar = st.form_submit_button("Actualizar", type="primary")
-
+            if st.session_state.persona_Selecionada != '':
+                btnActualizar = st.form_submit_button('Actualizar', type='primary')
                 if btnActualizar:
-                    producto = {
-                        "nombre": txtNombre,
-                        "precio": txtPrecio,
-                        "stock": txtStock
+                    persona = {
+                        'nombre': textNombre,
+                        'edad': textEdad
                     }
-                    self.actualizarProducto(producto, st.session_state.id_sesion)
-
+                    self.actualizarPersona(persona, textDocIdentidad)
             else:
-                btnGuardar = st.form_submit_button("Guardar", type="primary")
-
+                btnGuardar = st.form_submit_button('Guardar', type='primary')
                 if btnGuardar:
-                    producto = {
-                        "nombre": txtNombre,
-                        "precio": txtPrecio,
-                        "stock": txtStock
+                    persona = {
+                        'docIdentidad': textDocIdentidad,
+                        'nombre': textNombre,
+                        'edad': textEdad
                     }
-                    self.nuevoProducto(producto)
-
-        self.mostrarProductos()
-
-    # ---------------- TABLA ----------------
-    def mostrarProductos(self):
-        listaProductos = self.__nProducto.mostrarProductos()
-
+                    self.nuevaPersona(persona)
+            
+        self.mostrarPersonas()
+    
+    def mostrarPersonas(self):
+        listaPersonas = self.__nPersona.mostrarPersonas()
         col1, col2 = st.columns([10, 2])
 
         with col1:
-            seleccion = st.dataframe(
-                listaProductos,
-                selection_mode="single-row",
-                on_select="rerun"
+            personaSelecionada = st.dataframe(
+                listaPersonas,
+                selection_mode='single-row',
+                on_select='rerun'
             )
-
+            
         with col2:
-            if seleccion.selection.rows:
-                index = seleccion.selection.rows[0]
-                producto = listaProductos[index]
-
-                btnEditar = st.button("Editar")
-                btnEliminar = st.button("Eliminar")
-
+            if personaSelecionada.selection.rows:
+                indice_persona = personaSelecionada.selection.rows[0]
+                personaSelecionadaIndice = listaPersonas[indice_persona]
+                btnEditar = st.button('Editar')
+                btnEliminar = st.button('Eliminar')
+                
                 if btnEditar:
-                    st.session_state.productoSeleccionado = producto
+                    st.session_state.persona_Selecionada = personaSelecionadaIndice
                     st.rerun()
-
+                    
                 if btnEliminar:
-                    self.eliminarProducto(producto["id"])
-
-    # ---------------- CRUD ----------------
-    def nuevoProducto(self, producto):
+                    self.eliminarPersona(personaSelecionadaIndice['docIdentidad'])
+    def nuevaPersona(self, persona: dict):
         try:
-            self.__nProducto.nuevoProducto(producto)
-            st.toast("Producto registrado correctamente")
+            self.__nPersona.nuevaPersona(persona)
+            st.toast('Registro insertado correctamente', duration='short')
             self.limpiar()
         except Exception as e:
             st.error(e)
-
-    def actualizarProducto(self, producto, id_producto):
+            st.toast('Registro no insertado', duration='short')
+            
+    def actualizarPersona(self, persona: dict, docIdentidad: str):
         try:
-            self.__nProducto.actualizarProducto(producto, id_producto)
-            st.toast("Producto actualizado correctamente")
+            self.__nPersona.actualizasPersona(persona, docIdentidad)
+            st.toast('Registro actualizado correctamente', duration='short')
             self.limpiar()
         except Exception as e:
             st.error(e)
-
-    def eliminarProducto(self, id_producto):
+            st.toast('Registro no actualizado', duration='short')
+            
+    def eliminarPersona(self, docIdentidad: str):
         try:
-            self.__nProducto.eliminarProducto(id_producto)
-            st.toast("Producto eliminado correctamente")
+            self.__nPersona.eliminarPersona(docIdentidad)
+            st.toast('Registro eliminado correctamente', duration='short')
             self.limpiar()
         except Exception as e:
             st.error(e)
+            st.toast('Registro no eliminado', duration='short')
 
-    # ---------------- LIMPIAR ----------------
     def limpiar(self):
-        st.session_state.formularioKey += 1
-        st.session_state.productoSeleccionado = None
-        st.session_state.id_sesion = ''
+        st.session_state.formulariokey += 1
+        st.session_state.persona_Selecionada = ''
+        st.session_state.docIdentidad_sesion = ''
         st.session_state.nombre_sesion = ''
-        st.session_state.precio_sesion = 0.0
-        st.session_state.stock_sesion = 0
+        st.session_state.edad_sesion = 0
         st.rerun()
-
